@@ -5,6 +5,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const section = document.getElementById("section");
     const contact = document.getElementById("contact");
     const dob = document.getElementById("dob");
+    const studentNumber = document.getElementById("studentNumber");
+    const email = document.getElementById("email");
 
     year.disabled = true;
     section.disabled = true;
@@ -61,40 +63,117 @@ document.addEventListener("DOMContentLoaded", function () {
 
         contact.value = value;
 
-        const contactError = document.getElementById("contactError");
+        const error = document.getElementById("contactError");
 
-        if (value.length === 11 && value.startsWith("09")) {
-            contact.classList.remove("error");
+        if (value.startsWith("09") && value.length === 11) {
             contact.classList.add("success");
-            contactError.textContent = "";
+            contact.classList.remove("error");
+            error.textContent = "";
         } else {
-            contact.classList.remove("success");
             contact.classList.add("error");
-            contactError.textContent = "Contact number must start with 09 and be 11 digits.";
+            contact.classList.remove("success");
+            error.textContent = "Contact number must start with 09 and be 11 digits.";
         }
     });
 
     dob.addEventListener("change", function () {
-        const birthday = dob.value;
-        const birthdayError = document.getElementById("dobError");
-
-        if (birthday === "") {
-            return;
-        }
-
-        const selectedDate = new Date(birthday);
+        const selected = new Date(dob.value);
         const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        today.setHours(0,0,0,0);
 
-        if (selectedDate > today) {
-            dob.classList.remove("success");
+        const error = document.getElementById("dobError");
+
+        if (selected > today) {
             dob.classList.add("error");
-            birthdayError.textContent = "You cannot be born in the future.";
+            dob.classList.remove("success");
+            error.textContent = "You cannot be born in the future.";
         } else {
-            dob.classList.remove("error");
             dob.classList.add("success");
-            birthdayError.textContent = "";
+            dob.classList.remove("error");
+            error.textContent = "";
         }
     });
+
+    studentNumber.addEventListener("input", function () {
+        let value = studentNumber.value;
+
+        value = value.replace(/[^0-9-]/g, "");
+
+        if (value.length > 2 && value[2] !== "-") {
+            value = value.substring(0, 2) + "-" + value.substring(2);
+        }
+
+        if (value.length > 8) {
+            value = value.substring(0, 8);
+        }
+
+        studentNumber.value = value;
+
+        const error = document.getElementById("studentNumberError");
+        const pattern = /^[0-9]{2}-[0-9]{1,5}$/;
+
+        if (pattern.test(value)) {
+            studentNumber.classList.add("success");
+            studentNumber.classList.remove("error");
+            error.textContent = "";
+        } else {
+            studentNumber.classList.add("error");
+            studentNumber.classList.remove("success");
+            error.textContent = "Format must be: 24-12345";
+        }
+    });
+
+    email.addEventListener("input", function () {
+        const value = email.value.trim();
+        const error = document.getElementById("emailError");
+
+        const pattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if (pattern.test(value)) {
+            email.classList.add("success");
+            email.classList.remove("error");
+            error.textContent = "";
+        } else {
+            email.classList.add("error");
+            email.classList.remove("success");
+            error.textContent = "Enter a valid email (example@gmail.com)";
+        }
+    });
+const form = document.getElementById("studentForm");
+
+form.addEventListener("submit", function (event) {
+    const allRequired = document.querySelectorAll("input[required], select[required]");
+    let hasError = false;
+
+    for (let i = 0; i < allRequired.length; i++) {
+        const field = allRequired[i];
+        const value = field.value.trim();
+
+        if (value === "") {
+            field.classList.add("error");
+            field.classList.remove("success");
+
+            const errorBox = document.getElementById(field.id + "Error");
+            if (errorBox) {
+                errorBox.textContent = "This field is required.";
+            }
+
+            hasError = true;
+        }
+
+        if (field.classList.contains("error")) {
+            hasError = true;
+        }
+    }
+
+    if (hasError) {
+        event.preventDefault();
+
+        const formError = document.getElementById("formError");
+        if (formError) {
+            formError.textContent = "Please Corect all inputs before submitting.";
+        }
+    }
+});
 
 });
